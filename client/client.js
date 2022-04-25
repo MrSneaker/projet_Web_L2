@@ -211,8 +211,8 @@ function genereBarreNavigation(etatCourant) {
 
 function genereListPokemon(etatCourant)
 {
-  const ligneTab = etatCourant.Pokemons.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}">
-  <td><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}"/></td>
+  const ligneTab = etatCourant.Pokemons.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}" class="${etatCourant.pokemon && etatCourant.pokemon.PokedexNumber == pokemon.PokedexNumber ? "is-selected" : "" }">
+  <td><a id="${pokemon.Name}"><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}"/></a></td>
   <td>${pokemon.PokedexNumber}</td>
   <td>${pokemon.Name}</td>
   <td>${pokemon.Abilities.join("\n")}</td>
@@ -232,8 +232,116 @@ function genereListPokemon(etatCourant)
                     ${ligneTab}
                 </tbody>
               </table>`
+    
+  const callbacks = etatCourant.Pokemons.map((pokemon) => ({
+                [`pokemon-${pokemon.PokedexNumber}`]: {
+                    onclick: () => {
+                        console.log("click pokemon", pokemon.PokedexNumber);
+                        majEtatEtPage(etatCourant, { pokemon: pokemon });
+                        genereInfoPokemon(etatCourant).html;
+                    },
+                },
+            }))
   
     return {
+    html : html,
+
+    callbacks : callbacks.reduce((acc, cur) => ({...acc, ...cur }), {})
+    
+
+  }
+}
+
+
+function genereInfoPokemon(etatCourant)
+{
+  const pkmn = etatCourant.pokemon;
+  console.log(pkmn);
+  const html = `<div class="column">
+                    <div class="card">
+                      <div class="card-header">
+                        <div class="card-header-title">${pkmn.JapaneseName} (#${pkmn.PokedexNumber})</div>
+                      </div>
+                      <div class="card-content">
+                        <article class="media">
+                          <div class="media-content">
+                            <h1 class="title">${pkmn.Name}</h1>
+                          </div>
+                        </article>
+                      </div>
+                      <div class="card-content">
+                        <article class="media">
+                          <div class="media-content">
+                            <div class="content has-text-left">
+                              <p>${pkmn.Attack}</p>
+                              <h3>Abilities</h3>
+                              <ul>
+                                <li>${pkmn.Abilities.join("</li><li>")}</li>
+                              </ul>
+                              <h3>Resistant against</h3>
+                              <ul>
+                                <li>${Object.keys(pkmn.Against).filter((a)=>a<1).join("<li></li>")}</li>
+                              </ul>
+                              <h3>Weak against</h3>
+                              <ul>
+                                <li>${Object.keys(pkmn.Against).filter((a)=>a>1).join("<li></li>")}</li>
+                              </ul>
+                            </div>
+                          </div>
+                          <figure class="media-right">
+                            <figure class="image is-475x475">
+                              <img
+                              ${pkmn.Images}
+                              />
+                            </figure>
+                          </figure>
+                        </article>
+                      </div>
+                      <div class="card-footer">
+                        <article class="media">
+                          <div class="media-content">
+                            <button class="is-success button" tabindex="0">
+                              Ajouter à mon deck
+                            </button>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                  </div>`
+    const callback = {}
+    return {
+        html : html,
+        callbacks : callback,
+    }
+}
+
+function genereDeck(etatCourant)
+{
+  const ligneTab = etatCourant.Deck.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}">
+  <td><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}"/></td>
+  <td>${pokemon.PokedexNumber}</td>
+  <td>${pokemon.Name}</td>
+  <td>${pokemon.Abilities.join("\n")}</td>
+  <td>${pokemon.Types.join("\n")}</td>
+  </tr>`).join("")
+
+  const html = `<table class="table is-fullwidth">
+  <thead>
+        <tr>
+            <th>Image</th>
+            <th>#<i class="fas fa-angle-up"></i></th>
+            <th>Name</th>
+            <th>Abilities</th>
+            <th>Types</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${ligneTab}
+    </tbody>
+  </table>`
+
+  return {
     html : html,
     callbacks : {}
 
@@ -256,6 +364,7 @@ function generePage(etatCourant) {
   const barredeNavigation = genereBarreNavigation(etatCourant);
   const modaleLogin = genereModaleLogin(etatCourant);
   const listPokemon = genereListPokemon(etatCourant);
+  const deck = genereDeck(etatCourant);
   // remarquer l'usage de la notation ... ci-dessous qui permet de "fusionner"
   // les dictionnaires de callbacks qui viennent de la barre et de la modale.
   // Attention, les callbacks définis dans modaleLogin.callbacks vont écraser
@@ -264,8 +373,8 @@ function generePage(etatCourant) {
   // modaleLogin portent sur des zone différentes de la page et n'ont pas
   // d'éléments en commun.
   return {
-    html: barredeNavigation.html + modaleLogin.html + listPokemon.html,
-    callbacks: { ...barredeNavigation.callbacks, ...modaleLogin.callbacks, ...listPokemon.callback },
+    html: barredeNavigation.html + modaleLogin.html + listPokemon.html + deck.html,
+    callbacks: { ...barredeNavigation.callbacks, ...modaleLogin.callbacks, ...listPokemon.callbacks, ...deck.callbacks},
   };
 }
 
@@ -345,7 +454,8 @@ async function initClientPokemons() {
     loginModal: false,
     login: undefined,
     errLogin: undefined,
-    Pokemons: (await getPokemon()).sort((a,b)=>a.PokedexNumber - b.PokedexNumber)
+    Pokemons: (await getPokemon()).sort((a,b)=>a.PokedexNumber - b.PokedexNumber),
+    Deck : await getDeck(),
   };
   majPage(etatInitial);
 }
@@ -371,7 +481,7 @@ function getPokemon() {
     .catch((erreur) => ({ err: erreur }));
 }
 
-function getDeck(etatCourant) {
+function getDeck() {
   return fetch(serverUrl + "/deck/" + login, { headers: { "Api-Key": apiKey } })
     .then((response) => {
       if (response.status === 401) {
