@@ -235,10 +235,9 @@ function genereListPokemon(etatCourant)
     
   const callbacks = etatCourant.Pokemons.map((pokemon) => ({
                 [`pokemon-${pokemon.PokedexNumber}`]: {
-                    onclick: () => {
+                    onclick: () => { 
                         console.log("click pokemon", pokemon.PokedexNumber);
                         majEtatEtPage(etatCourant, { pokemon: pokemon });
-                        genereInfoPokemon(etatCourant).html;
                     },
                 },
             }))
@@ -256,7 +255,9 @@ function genereListPokemon(etatCourant)
 function genereInfoPokemon(etatCourant)
 {
   const pkmn = etatCourant.pokemon;
+  if(!pkmn) return{html:"",callbacks:{}};
   console.log(pkmn);
+  console.log(pkmn.Against);
   const html = `<div class="column">
                     <div class="card">
                       <div class="card-header">
@@ -273,7 +274,7 @@ function genereInfoPokemon(etatCourant)
                         <article class="media">
                           <div class="media-content">
                             <div class="content has-text-left">
-                              <p>${pkmn.Attack}</p>
+                              <p>Hit point : ${pkmn.Attack}</p>
                               <h3>Abilities</h3>
                               <ul>
                                 <li>${pkmn.Abilities.join("</li><li>")}</li>
@@ -291,7 +292,8 @@ function genereInfoPokemon(etatCourant)
                           <figure class="media-right">
                             <figure class="image is-475x475">
                               <img
-                              ${pkmn.Images}
+                               class src = ${pkmn.Images.Full}
+                               alt = "${pkmn.Name}"
                               />
                             </figure>
                           </figure>
@@ -365,6 +367,7 @@ function generePage(etatCourant) {
   const modaleLogin = genereModaleLogin(etatCourant);
   const listPokemon = genereListPokemon(etatCourant);
   const deck = genereDeck(etatCourant);
+  const infopokemon = genereInfoPokemon(etatCourant);
   // remarquer l'usage de la notation ... ci-dessous qui permet de "fusionner"
   // les dictionnaires de callbacks qui viennent de la barre et de la modale.
   // Attention, les callbacks définis dans modaleLogin.callbacks vont écraser
@@ -373,8 +376,8 @@ function generePage(etatCourant) {
   // modaleLogin portent sur des zone différentes de la page et n'ont pas
   // d'éléments en commun.
   return {
-    html: barredeNavigation.html + modaleLogin.html + listPokemon.html + deck.html,
-    callbacks: { ...barredeNavigation.callbacks, ...modaleLogin.callbacks, ...listPokemon.callbacks, ...deck.callbacks},
+    html: barredeNavigation.html + modaleLogin.html + listPokemon.html + deck.html + infopokemon.html,
+    callbacks: { ...barredeNavigation.callbacks, ...modaleLogin.callbacks, ...listPokemon.callbacks, ...deck.callbacks, ...infopokemon.callbacks},
   };
 }
 
