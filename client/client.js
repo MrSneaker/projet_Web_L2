@@ -212,13 +212,13 @@ function genereBarreNavigation(etatCourant) {
 function genereListPokemon(etatCourant)
 {
   const ligneTab = etatCourant.Pokemons.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}" class="${etatCourant.pokemon && etatCourant.pokemon.PokedexNumber == pokemon.PokedexNumber ? "is-selected" : "" }">
-  <td><a id="${pokemon.Name}"><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}"/></a></td>
-  <td>${pokemon.PokedexNumber}</td>
-  <td>${pokemon.Name}</td>
+  <td><a id="${pokemon.Name}"><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}" width="64" /></a></td>
+  <td><div class="content">${pokemon.PokedexNumber}</div></td>
+  <td><div class="content">${pokemon.Name}</div></td>
   <td>${pokemon.Abilities.join("\n")}</td>
   <td>${pokemon.Types.join("\n")}</td>
   </tr>`).join("")
-  const html = `<table class="table is-fullwidth">
+  const html = `<table class="table">
               <thead>
                     <tr>
                         <th>Image</th>
@@ -281,12 +281,10 @@ function genereInfoPokemon(etatCourant)
                               </ul>
                               <h3>Resistant against</h3>
                               <ul>
-                                <li>${Object.keys(pkmn.Against).filter((a)=>a<1).join("<li></li>")}</li>
+                                <li>${Object.keys(pkmn.Against).filter(x => pkmn.Against[x] < 1).join("</li><li>")}</li>
                               </ul>
                               <h3>Weak against</h3>
-                              <ul>
-                                <li>${Object.keys(pkmn.Against).filter((a)=>a>1).join("<li></li>")}</li>
-                              </ul>
+                              <ul><li> ${Object.keys(pkmn.Against).filter(x => pkmn.Against[x] > 1).join("</li><li>")} </li></ul>
                             </div>
                           </div>
                           <figure class="media-right">
@@ -350,7 +348,32 @@ function genereDeck(etatCourant)
   }
 }
 
+function generePokedex(etatCourant)
+{
+  const pkmn = genereListPokemon(etatCourant);
+  const infoPkmn = genereInfoPokemon(etatCourant);
 
+  const html = `<div class="column">
+                      <div class="tabs is-centered">
+                      <ul>
+                        <li class="is-active" id="tab-all-pokemons">
+                          <a>Tous les pokemons</a>
+                        </li>
+                        <li id="tab-tout"><a>Mes pokemons</a></li>
+                      </ul>
+                    </div>
+                  <div id="tbl-pokemons">
+                    ${pkmn.html}
+                  </div>
+                </div>
+                ${infoPkmn.html}`
+  const callback =  {...pkmn.callbacks, ...infoPkmn.callbacks}
+
+  return{
+    html: html,
+    callbacks : callback
+  }
+}
 
 
 
@@ -365,9 +388,8 @@ function genereDeck(etatCourant)
 function generePage(etatCourant) {
   const barredeNavigation = genereBarreNavigation(etatCourant);
   const modaleLogin = genereModaleLogin(etatCourant);
-  const listPokemon = genereListPokemon(etatCourant);
+  const Pokedex = generePokedex(etatCourant);
   const deck = genereDeck(etatCourant);
-  const infopokemon = genereInfoPokemon(etatCourant);
   // remarquer l'usage de la notation ... ci-dessous qui permet de "fusionner"
   // les dictionnaires de callbacks qui viennent de la barre et de la modale.
   // Attention, les callbacks définis dans modaleLogin.callbacks vont écraser
@@ -376,8 +398,8 @@ function generePage(etatCourant) {
   // modaleLogin portent sur des zone différentes de la page et n'ont pas
   // d'éléments en commun.
   return {
-    html: barredeNavigation.html + modaleLogin.html + listPokemon.html + deck.html + infopokemon.html,
-    callbacks: { ...barredeNavigation.callbacks, ...modaleLogin.callbacks, ...listPokemon.callbacks, ...deck.callbacks, ...infopokemon.callbacks},
+    html: barredeNavigation.html + modaleLogin.html + deck.html + Pokedex.html,
+    callbacks: { ...barredeNavigation.callbacks, ...modaleLogin.callbacks, ...deck.callbacks, ...Pokedex.callbacks},
   };
 }
 
