@@ -218,7 +218,7 @@ function genereListPokemon(etatCourant)
   <td>${pokemon.Abilities.join("\n")}</td>
   <td>${pokemon.Types.join("\n")}</td>
   </tr>`).join("")
-  const html = `<table class="table">
+  const html = `<table class="table is-fullwidth">
               <thead>
                     <tr>
                         <th>Image</th>
@@ -308,7 +308,7 @@ function genereInfoPokemon(etatCourant)
                       </div>
                     </div>
                   </div>
-                  </div>`
+              `
     const callback = {}
     return {
         html : html,
@@ -353,20 +353,23 @@ function generePokedex(etatCourant)
   const pkmn = genereListPokemon(etatCourant);
   const infoPkmn = genereInfoPokemon(etatCourant);
 
-  const html = `<div class="column">
-                      <div class="tabs is-centered">
-                      <ul>
-                        <li class="is-active" id="tab-all-pokemons">
-                          <a>Tous les pokemons</a>
-                        </li>
-                        <li id="tab-tout"><a>Mes pokemons</a></li>
-                      </ul>
+  const html = `<div class="columns">
+                    <div class="column">
+                        <div class="tabs is-centered">
+                         <ul>
+                            <li class="is-active" id="tab-all-pokemons">
+                              <a>Tous les pokemons</a>
+                            </li>
+                            <li id="tab-tout"><a>Mes pokemons</a></li>
+                          </ul>
+                       </div>
+                      <div id="tbl-pokemons">
+                        ${pkmn.html}
+                      </div>
                     </div>
-                  <div id="tbl-pokemons">
-                    ${pkmn.html}
+                    ${infoPkmn.html}
                   </div>
-                </div>
-                ${infoPkmn.html}`
+                `
   const callback =  {...pkmn.callbacks, ...infoPkmn.callbacks}
 
   return{
