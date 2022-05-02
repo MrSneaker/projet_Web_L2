@@ -221,11 +221,11 @@ function genereListPokemon(etatCourant)
   const html = `<table class="table is-fullwidth">
               <thead>
                     <tr>
-                        <th>Image</th>
-                        <th>#<i class="fas fa-angle-up"></i></th>
-                        <th>Name</th>
-                        <th>Abilities</th>
-                        <th>Types</th>
+                        <th id="image">Image</th>
+                        <th id="numero">#<i class="fas fa-angle-up"></i></th>
+                        <th id="name">Name</th>
+                        <th id="abili">Abilities</th>
+                        <th id="type">Types</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -240,6 +240,7 @@ function genereListPokemon(etatCourant)
                         majEtatEtPage(etatCourant, { pokemon: pokemon });
                     },
                 },
+
             }))
   
     return {
@@ -251,6 +252,47 @@ function genereListPokemon(etatCourant)
   }
 }
 
+function Tripokemon(etatCourant)
+{
+  const pkmn = genereListPokemon(etatCourant);
+  const html = pkmn.html;
+
+  const callbacks = ({
+    "numero":{
+      onclick: () => {
+        console.log("numéro");
+        majEtatEtPage(etatCourant,{});
+        console.log(Tri);
+      }
+    },
+    "image":{
+      onclick: () => {
+        console.log("image");
+      }
+    },
+    "name":{
+      onclick: () => {
+        console.log("name");
+      }
+    },
+    "abili":{
+      onclick: () => {
+        console.log("abili");
+      }
+    },
+    "type":{
+      onclick: () => {
+        console.log("type");
+      }
+    },
+    ...pkmn.callbacks
+  })
+
+  return {
+    html : html,
+    callbacks: callbacks
+  }
+}
 
 function genereInfoPokemon(etatCourant)
 {
@@ -350,7 +392,7 @@ function genereDeck(etatCourant)
 
 function generePokedex(etatCourant)
 {
-  const pkmn = genereListPokemon(etatCourant);
+  const pkmn = Tripokemon(etatCourant);
   const infoPkmn = genereInfoPokemon(etatCourant);
 
   const html = `<div class="columns">
@@ -484,6 +526,7 @@ async function initClientPokemons() {
     errLogin: undefined,
     Pokemons: (await getPokemon()).sort((a,b)=>a.PokedexNumber - b.PokedexNumber),
     Deck : await getDeck(),
+    Tri :"numero",
   };
   majPage(etatInitial);
 }
