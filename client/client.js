@@ -261,28 +261,41 @@ function Tripokemon(etatCourant)
     "numero":{
       onclick: () => {
         console.log("numéro");
-        majEtatEtPage(etatCourant,{});
-        console.log(Tri);
-      }
-    },
-    "image":{
-      onclick: () => {
-        console.log("image");
+        console.log("ordre : ",etatCourant.ordre)
+        if(etatCourant.ordre)
+        {
+          Pokemons = etatCourant.Pokemons.sort((a,b)=>a.PokedexNumber - b.PokedexNumber);
+          ordre = false;
+          majEtatEtPage(etatCourant,{ordre: ordre});
+        }
+        else
+        {
+          Pokemons = etatCourant.Pokemons.sort((a,b)=>b.PokedexNumber - a.PokedexNumber);
+          ordre = true;
+          majEtatEtPage(etatCourant,{ordre: ordre});
+        }
+        majEtatEtPage(etatCourant,{Pokemons: Pokemons });
       }
     },
     "name":{
       onclick: () => {
         console.log("name");
+        Pokemons =  etatCourant.Pokemons.sort((a,b)=>a.Name.localeCompare(b.Name));
+        majEtatEtPage(etatCourant,{Pokemons: Pokemons });
       }
     },
     "abili":{
       onclick: () => {
         console.log("abili");
+        Pokemons =  etatCourant.Pokemons.sort((a,b)=>a.Abilities[0].localeCompare(b.Abilities[0]));
+        majEtatEtPage(etatCourant,{Pokemons: Pokemons});
       }
     },
     "type":{
       onclick: () => {
         console.log("type");
+        Pokemons =  etatCourant.Pokemons.sort((a,b)=>a.Types[0].localeCompare(b.Types[0]));
+        majEtatEtPage(etatCourant,{Pokemons: Pokemons});
       }
     },
     ...pkmn.callbacks
@@ -524,9 +537,10 @@ async function initClientPokemons() {
     loginModal: false,
     login: undefined,
     errLogin: undefined,
+    ordre: true,
     Pokemons: (await getPokemon()).sort((a,b)=>a.PokedexNumber - b.PokedexNumber),
     Deck : await getDeck(),
-    Tri :"numero",
+    
   };
   majPage(etatInitial);
 }
