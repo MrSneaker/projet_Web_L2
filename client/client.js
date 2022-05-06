@@ -211,6 +211,8 @@ function genereBarreNavigation(etatCourant) {
 
 function genereListPokemon(etatCourant)
 {
+  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordreb
+  etatCourant.Pokemons = PokemonTriés(etatCourant);
   const ligneTab = etatCourant.Pokemons.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}" class="${etatCourant.pokemon && etatCourant.pokemon.PokedexNumber == pokemon.PokedexNumber ? "is-selected" : "" }">
   <td><a id="${pokemon.Name}"><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}" width="64" /></a></td>
   <td><div class="content">${pokemon.PokedexNumber}</div></td>
@@ -221,11 +223,11 @@ function genereListPokemon(etatCourant)
   const html = `<table class="table is-fullwidth">
               <thead>
                     <tr>
-                        <th id="image">Image</th>
-                        <th id="numero">#<i class="fas fa-angle-up"></i></th>
-                        <th id="name">Name</th>
-                        <th id="abili">Abilities</th>
-                        <th id="type">Types</th>
+                        <th>Image</th>
+                        <th id="numero">#<i class="${tri == "id" ? order ? "fas fa-angle-up" : "fas fa-angle-down" : ""}"></i></th>
+                        <th id="name">Name<i class="${tri == "Name" ? order ? "fas fa-angle-up" : "fas fa-angle-down" : ""}"></i></th>
+                        <th id="abili">Abilities<i class="${tri == "Abilities" ? order ? "fas fa-angle-up" : "fas fa-angle-down" : ""}"></i></th>
+                        <th id="type">Types<i class="${tri == "Types" ? order ? "fas fa-angle-up" : "fas fa-angle-down" : ""}"></i></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -252,52 +254,33 @@ function genereListPokemon(etatCourant)
   }
 }
 
+/**
+ * Récupèrer le type et l'ordre de tri dans le tableau de pokemons
+ * @param {Etat} etatCourant
+ * @returns un objet contenant le type et l'ordre de tri
+ */
+ function getTypeOrdreTri(etatCourant) {
+  const sortType = etatCourant.sortType ? etatCourant.sortType : "id";
+  const sortOrder = etatCourant.sortOrder != undefined ?
+    etatCourant.sortOrder : true;
+  return {
+    tri: sortType,
+    order: sortOrder,
+  }
+}
+
 function Tripokemon(etatCourant)
 {
+  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordreb
   const pkmn = genereListPokemon(etatCourant);
   const html = pkmn.html;
+  etatCourant.ordre = true;
 
   const callbacks = ({
-    "numero":{
-      onclick: () => {
-        console.log("numéro");
-        console.log("ordre : ",etatCourant.ordre)
-        if(etatCourant.ordre)
-        {
-          Pokemons = etatCourant.Pokemons.sort((a,b)=>a.PokedexNumber - b.PokedexNumber);
-          ordre = false;
-          majEtatEtPage(etatCourant,{ordre: ordre});
-        }
-        else
-        {
-          Pokemons = etatCourant.Pokemons.sort((a,b)=>b.PokedexNumber - a.PokedexNumber);
-          ordre = true;
-          majEtatEtPage(etatCourant,{ordre: ordre});
-        }
-        majEtatEtPage(etatCourant,{Pokemons: Pokemons });
-      }
-    },
-    "name":{
-      onclick: () => {
-        console.log("name");
-        Pokemons =  etatCourant.Pokemons.sort((a,b)=>a.Name.localeCompare(b.Name));
-        majEtatEtPage(etatCourant,{Pokemons: Pokemons });
-      }
-    },
-    "abili":{
-      onclick: () => {
-        console.log("abili");
-        Pokemons =  etatCourant.Pokemons.sort((a,b)=>a.Abilities[0].localeCompare(b.Abilities[0]));
-        majEtatEtPage(etatCourant,{Pokemons: Pokemons});
-      }
-    },
-    "type":{
-      onclick: () => {
-        console.log("type");
-        Pokemons =  etatCourant.Pokemons.sort((a,b)=>a.Types[0].localeCompare(b.Types[0]));
-        majEtatEtPage(etatCourant,{Pokemons: Pokemons});
-      }
-    },
+    "numero": { onclick: () => majEtatEtPage(etatCourant, { sortType: "id", sortOrder: tri != "id" ? true : !order }) },
+      "name": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Name", sortOrder: tri != "Name" ? true : !order }) },
+      "abili": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Abilities", sortOrder: tri != "Abilities" ? true : !order }) },
+      "type": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Types", sortOrder: tri != "Types" ? true : !order }) },
     ...pkmn.callbacks
   })
 
@@ -305,6 +288,19 @@ function Tripokemon(etatCourant)
     html : html,
     callbacks: callbacks
   }
+}
+
+function PokemonTriés(etatCourant) {
+  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordre
+  const pokemons = etatCourant.Pokemons
+  const OrderedListePoke = pokemons.sort((a, b) => {
+    if (tri == "id") return order ? a.PokedexNumber - b.PokedexNumber : b.PokedexNumber - a.PokedexNumber
+    else if (tri == "Name") return order ? a.Name.localeCompare(b.Name) : b.Name.localeCompare(a.Name);
+    else if (tri == "Abilities") return order ? a.Abilities.join("\n").localeCompare(b.Abilities.join("\n")) : b.Abilities.join("\n").localeCompare(a.Abilities.join("\n"));
+    else if (tri == "Types") return order ? a.Types.join("\n").localeCompare(b.Types.join("\n")) : b.Types.join("\n").localeCompare(a.Types.join("\n"));
+  }).filter(x => x.Name.toLowerCase().includes(etatCourant.search ? etatCourant.search.toLowerCase() : ""));
+
+  return OrderedListePoke
 }
 
 function genereInfoPokemon(etatCourant)
@@ -537,7 +533,6 @@ async function initClientPokemons() {
     loginModal: false,
     login: undefined,
     errLogin: undefined,
-    ordre: true,
     Pokemons: (await getPokemon()).sort((a,b)=>a.PokedexNumber - b.PokedexNumber),
     Deck : await getDeck(),
     
