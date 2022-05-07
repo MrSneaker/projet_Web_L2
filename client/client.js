@@ -219,7 +219,7 @@ function genereListPokemon(etatCourant)
 {
   const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordre
   const nbpokeaff = getNbpkmn(etatCourant);
-  const Pokemons = PokemonTriés(etatCourant).slice(nbpokeaff-10,nbpokeaff);
+  const Pokemons = PokemonTriés(etatCourant).slice(0,nbpokeaff);
   const ligneTab = Pokemons.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}" class="${etatCourant.pokemon && etatCourant.pokemon.PokedexNumber == pokemon.PokedexNumber ? "is-selected" : "" }">
   <td><a id="${pokemon.Name}"><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}" width="64" /></a></td>
   <td><div class="content">${pokemon.PokedexNumber}</div></td>
