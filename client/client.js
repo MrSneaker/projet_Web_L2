@@ -14,8 +14,8 @@ const login = "p2002495";
  * Fait une requête GET authentifiée sur /whoami
  * @returns une promesse du login utilisateur ou du message d'erreur
  */
-function fetchWhoami() {
-  return fetch(serverUrl + "/whoami", { headers: { "Api-Key": apiKey } })
+function fetchWhoami(Api) {
+  return fetch(serverUrl + "/whoami", { headers: { "Api-Key": Api } })
     .then((response) => {
       if (response.status === 401) {
         return response.json().then((json) => {
@@ -36,12 +36,12 @@ function fetchWhoami() {
  * @param {Etat} etatCourant l'état courant
  * @returns Une promesse de mise à jour
  */
-function lanceWhoamiEtInsereLogin(etatCourant) {
-  return fetchWhoami().then((data) => {
+function lanceWhoamiEtInsereLogin(Api, etatCourant) {
+  return fetchWhoami(Api).then((data) => {
     majEtatEtPage(etatCourant, {
       login: data.user, // qui vaut undefined en cas d'erreur
       errLogin: data.err, // qui vaut undefined si tout va bien
-      loginModal: true, // on affiche la modale
+      loginModal: false, // on affiche la modale
     });
   });
 }
@@ -58,7 +58,9 @@ function genereModaleLoginBody(etatCourant) {
   const text =
     etatCourant.errLogin !== undefined
       ? etatCourant.errLogin
-      : etatCourant.login;
+      : etatCourant.login === undefined
+        ? ""
+        : etatCourant.login;
   return {
     html: `
   <section class="modal-card-body">
