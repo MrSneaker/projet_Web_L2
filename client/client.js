@@ -370,67 +370,85 @@ function PokemonTriés(etatCourant) {
   return OrderedListePoke
 }
 
+function genereHTMLinfo1(etatCourant)
+{
+  const pkmn = etatCourant.pokemon;
+  if (!pkmn) return { html: "", callbacks: {} };
+  return html = `<div class="column">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">${pkmn.JapaneseName} (#${pkmn.PokedexNumber})</div>
+    </div>
+    <div class="card-content">
+      <article class="media">
+        <div class="media-content">
+          <h1 class="title">${pkmn.Name}</h1>
+        </div>
+      </article>
+    </div>`;
+}
+
+function genereHTMLinfo2(etatCourant)
+{
+  const pkmn = etatCourant.pokemon;
+  if (!pkmn) return { html: "", callbacks: {} };
+  return html =  ` <div class="card-content">
+    <article class="media">
+      <div class="media-content">
+        <div class="content has-text-left">
+          <p>Hit point : ${pkmn.Attack}</p>
+          <h3>Abilities</h3>
+          <ul>
+            <li>${pkmn.Abilities.join("</li><li>")}</li>
+          </ul>
+          <h3>Resistant against</h3>
+          <ul>
+            <li>${Object.keys(pkmn.Against).filter(x => pkmn.Against[x] < 1)
+              .join("</li><li>")}</li>
+          </ul>
+          <h3>Weak against</h3>
+          <ul><li> ${Object.keys(pkmn.Against).filter(x => pkmn.Against[x] > 1)
+            .join("</li><li>")} </li></ul>
+        </div>
+      </div>`
+}
+
+function genereHTMLinfo3(etatCourant)
+{
+  return html = `
+        <div class="card-footer">
+          <article class="media">
+            <div class="media-content">
+              <button class="is-success button" tabindex="0">
+                Ajouter à mon deck
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>`;
+}
+
 function genereInfoPokemon(etatCourant) {
   const pkmn = etatCourant.pokemon;
   if (!pkmn) return { html: "", callbacks: {} };
-  console.log(pkmn);
-  console.log(pkmn.Against);
-  const html = `<div class="column">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="card-header-title">${pkmn.JapaneseName} (#${pkmn.PokedexNumber})</div>
-                      </div>
-                      <div class="card-content">
-                        <article class="media">
-                          <div class="media-content">
-                            <h1 class="title">${pkmn.Name}</h1>
-                          </div>
-                        </article>
-                      </div>
-                      <div class="card-content">
-                        <article class="media">
-                          <div class="media-content">
-                            <div class="content has-text-left">
-                              <p>Hit point : ${pkmn.Attack}</p>
-                              <h3>Abilities</h3>
-                              <ul>
-                                <li>${pkmn.Abilities.join("</li><li>")}</li>
-                              </ul>
-                              <h3>Resistant against</h3>
-                              <ul>
-                                <li>${Object.keys(pkmn.Against).filter(x => pkmn.Against[x] < 1).join("</li><li>")}</li>
-                              </ul>
-                              <h3>Weak against</h3>
-                              <ul><li> ${Object.keys(pkmn.Against).filter(x => pkmn.Against[x] > 1).join("</li><li>")} </li></ul>
-                            </div>
-                          </div>
-                          <figure class="media-right">
-                            <figure class="image is-475x475">
-                              <img
-                               class src = ${pkmn.Images.Full}
-                               alt = "${pkmn.Name}"
-                              />
-                            </figure>
-                          </figure>
-                        </article>
-                      </div>
-                      <div class="card-footer">
-                        <article class="media">
-                          <div class="media-content">
-                            <button class="is-success button" tabindex="0">
-                              Ajouter à mon deck
-                            </button>
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                  </div>
-              `
-  const callback = {}
-  return {
-    html: html,
-    callbacks: callback,
-  }
+  const html1 = genereHTMLinfo1(etatCourant);
+  const html2 = genereHTMLinfo2(etatCourant);
+  const html3 = genereHTMLinfo3(etatCourant);
+  const html = `${html1}
+                ${html2}
+            <figure class="media-right">
+              <figure class="image is-475x475">
+                <img
+                class src = ${pkmn.Images.Full}
+                alt = "${pkmn.Name}"
+                />
+              </figure>
+            </figure>
+          </article>
+        </div>
+               ${html3}`;
+  return {html: html, callbacks: {}};
 }
 
 function genereDeck(etatCourant) {
@@ -479,24 +497,23 @@ function genereHTMLPokedex(etatCourant)
   const pkmn = Tripokemon(etatCourant);
   const infoPkmn = genereInfoPokemon(etatCourant);
   return html = `<div class="columns">
-  <div class="column">
-      <div class="tabs is-centered">
-       <ul>
-          <li class="is-active" id="tab-all-pokemons">
-            <a>Tous les pokemons</a>
-          </li>
-          <li id="tab-tout"><a>Mes pokemons</a></li>
-        </ul>
-     </div>
-    <div id="tbl-pokemons">
-      ${pkmn.html}
-    </div>
-    <button id="-" class="is-success button" tabindex="0">-</button>
-    <button id="+" class="is-success button" tabindex="0">+</button>
-  </div>
-  ${infoPkmn.html}
-</div>
-`;
+        <div class="column">
+            <div class="tabs is-centered">
+            <ul>
+                <li class="is-active" id="tab-all-pokemons">
+                  <a>Tous les pokemons</a>
+                </li>
+                <li id="tab-tout"><a>Mes pokemons</a></li>
+              </ul>
+          </div>
+          <div id="tbl-pokemons">
+            ${pkmn.html}
+          </div>
+          <button id="-" class="is-success button" tabindex="0">-</button>
+          <button id="+" class="is-success button" tabindex="0">+</button>
+        </div>
+        ${infoPkmn.html}
+      </div>`;
 }
 
 /**
