@@ -62,6 +62,8 @@ function genereModaleLoginBody(etatCourant) {
   return {
     html: `
   <section class="modal-card-body">
+  <label>Clé d'API:</label><br/>
+  <input type="password" id="input-apikey" size="60" />
     <p>${text}</p>
   </section>
   `,
@@ -107,12 +109,19 @@ function genereModaleLoginFooter(etatCourant) {
     html: `
   <footer class="modal-card-foot" style="justify-content: flex-end">
     <button id="btn-close-login-modal2" class="button">Fermer</button>
+    <button id="btn-submit-login-modal" class="button">Valider</button>
   </footer>
   `,
     callbacks: {
       "btn-close-login-modal2": {
         onclick: () => majEtatEtPage(etatCourant, { loginModal: false }),
       },
+      "btn-submit-login-modal": {
+        onclick: function () {
+          const API = document.getElementById("input-apikey").value;
+          return lanceWhoamiEtInsereLogin(API, etatCourant);
+        }
+      }
     },
   };
 }
@@ -169,7 +178,10 @@ function genereBoutonConnexion(etatCourant) {
   <div class="navbar-end">
     <div class="navbar-item">
       <div class="buttons">
-        <a id="btn-open-login-modal" class="button is-light"> Connexion </a>
+      ${etatCourant.login === undefined
+      ? `<a id="btn-open-login-modal" class="button is-light"> Connexion </a>`
+      : `<p>${etatCourant.login}</p>
+      <a id="btn-dc-login-modal" class="button is-light"> Déconnexion </a>`}   
       </div>
     </div>
   </div>`;
@@ -177,10 +189,39 @@ function genereBoutonConnexion(etatCourant) {
     html: html,
     callbacks: {
       "btn-open-login-modal": {
-        onclick: () => afficheModaleConnexion(etatCourant),
+        onclick: () => majEtatEtPage(etatCourant, { loginModal: true }),
       },
+      "btn-dc-login-modal": {
+        onclick: () => majEtatEtPage(etatCourant, { login: undefined })
+      }
     },
   };
+}
+
+
+function SearchFunction() {
+  // Declare variables
+  var input, filter, found, table, li, a, i, j;
+  input = document.getElementById("SearchInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("tab-all-pokemons");
+  li = table.getElementsByTagName("li");
+
+  for (i = 0; i < tr.length; i++) {
+    a = li[i].getElementsByTagName("a");
+    for (j = 0; j < li.length; j++) {
+      if ([j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+        found = true;
+      }
+    }
+    if (found) {
+      li[i].style.display = "";
+      found = false;
+    } else {
+
+      if (li[i].id != 'tableHeader') { li[i].style.display = "none"; }
+    }
+  }
 }
 
 /**
@@ -265,18 +306,19 @@ function genereListPokemon(etatCourant)
 {
   const html = genereHTMLlistePoke(etatCourant);
   const callbacks = etatCourant.Pokemons.map((pokemon) => ({
-                [`pokemon-${pokemon.PokedexNumber}`]: {
-                    onclick: () => { 
-                        majEtatEtPage(etatCourant, { pokemon: pokemon });
-                    },
-                },
+    [`pokemon-${pokemon.PokedexNumber}`]: {
+      onclick: () => {
+        console.log("click pokemon", pokemon.PokedexNumber);
+        majEtatEtPage(etatCourant, { pokemon: pokemon });
+      },
+    },
 
-            }))
-  
-    return {
-    html : html,
+  }))
 
-    callbacks : callbacks.reduce((acc, cur) => ({...acc, ...cur }), {})
+  return {
+    html: html,
+
+    callbacks: callbacks.reduce((acc, cur) => ({ ...acc, ...cur }), {})
   }
 }
 
@@ -285,7 +327,7 @@ function genereListPokemon(etatCourant)
  * @param {Etat} etatCourant
  * @returns un objet contenant le type et l'ordre de tri
  */
- function getTypeOrdreTri(etatCourant) {
+function getTypeOrdreTri(etatCourant) {
   const sortType = etatCourant.sortType ? etatCourant.sortType : "id";
   const sortOrder = etatCourant.sortOrder != undefined ?
     etatCourant.sortOrder : true;
@@ -295,37 +337,26 @@ function genereListPokemon(etatCourant)
   }
 }
 
-/**
- * récupère l'ordre de tri et la liste de pokemons.
- * @param {Etat} etatCourant
- * @returns un objet contenant l'html les pokemons triés et les callbacks associés. 
- */
-function Tripokemon(etatCourant)
-{
-  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordre
+function Tripokemon(etatCourant) {
+  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordreb
   const pkmn = genereListPokemon(etatCourant);
   const html = pkmn.html;
+  etatCourant.ordre = true;
 
   const callbacks = ({
     "numero": { onclick: () => majEtatEtPage(etatCourant, { sortType: "id", sortOrder: tri != "id" ? true : !order }) },
-      "name": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Name", sortOrder: tri != "Name" ? true : !order }) },
-      "abili": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Abilities", sortOrder: tri != "Abilities" ? true : !order }) },
-      "type": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Types", sortOrder: tri != "Types" ? true : !order }) },
-    ...pkmn.callbacks,
+    "name": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Name", sortOrder: tri != "Name" ? true : !order }) },
+    "abili": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Abilities", sortOrder: tri != "Abilities" ? true : !order }) },
+    "type": { onclick: () => majEtatEtPage(etatCourant, { sortType: "Types", sortOrder: tri != "Types" ? true : !order }) },
+    ...pkmn.callbacks
   })
 
   return {
-    html : html,
+    html: html,
     callbacks: callbacks
   }
 }
 
-
-/**
- * Fonction triant les pokemons selon le paramètre choisi et dans l'ordre voulu.
- * @param {Etat} etatCourant
- * @returns la liste des pokemons triés.
- */
 function PokemonTriés(etatCourant) {
   const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordre
   const pokemons = etatCourant.Pokemons
@@ -334,21 +365,16 @@ function PokemonTriés(etatCourant) {
     else if (tri == "Name") return order ? a.Name.localeCompare(b.Name) : b.Name.localeCompare(a.Name);
     else if (tri == "Abilities") return order ? a.Abilities.join("\n").localeCompare(b.Abilities.join("\n")) : b.Abilities.join("\n").localeCompare(a.Abilities.join("\n"));
     else if (tri == "Types") return order ? a.Types.join("\n").localeCompare(b.Types.join("\n")) : b.Types.join("\n").localeCompare(a.Types.join("\n"));
-  });
+  }).filter(x => x.Name.toLowerCase().includes(etatCourant.search ? etatCourant.search.toLowerCase() : ""));
 
   return OrderedListePoke
 }
 
-
-/**
- * Affiche les détails du pokemons selectionné.
- * @param {Etat} etatCourant
- * @returns l'html correspondant.
- */
-function genereInfoPokemon(etatCourant)
-{
+function genereInfoPokemon(etatCourant) {
   const pkmn = etatCourant.pokemon;
-  if(!pkmn) return{html:"",callbacks:{}};
+  if (!pkmn) return { html: "", callbacks: {} };
+  console.log(pkmn);
+  console.log(pkmn.Against);
   const html = `<div class="column">
                     <div class="card">
                       <div class="card-header">
@@ -400,21 +426,14 @@ function genereInfoPokemon(etatCourant)
                     </div>
                   </div>
               `
-    const callback = {}
-    return {
-        html : html,
-        callbacks : callback,
-    }
+  const callback = {}
+  return {
+    html: html,
+    callbacks: callback,
+  }
 }
 
-
-/**
- * Génère l'affichage du deck de l'utilisateur.
- * @param {Etat} etatCourant
- * @returns l'html correspondant ainsi que les callbacks.
- */
-function genereDeck(etatCourant)
-{
+function genereDeck(etatCourant) {
   const ligneTab = etatCourant.Deck.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}">
   <td><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}"/></td>
   <td>${pokemon.PokedexNumber}</td>
@@ -438,9 +457,11 @@ function genereDeck(etatCourant)
     </tbody>
   </table>`
 
-  return {html : html, callbacks : {}}
+  return {
+    html: html,
+    callbacks: {}
+  }
 }
-
 
 /**
  * Fonction permettant d'obtenir le nombre de pokemons
@@ -493,7 +514,10 @@ function generePokedex(etatCourant)
     "-":{onclick: ()=> {if(nbPoke>10){majEtatEtPage(etatCourant, {nbPokemon: nbPoke-10})} console.log("nbpoke : ",nbPoke)}},
     "+":{onclick: ()=> {if(nbPoke<801){majEtatEtPage(etatCourant, {nbPokemon: nbPoke+10})} console.log("nbpoke : ",nbPoke);}}}
 
-  return{html: html, callbacks : callback}
+  return {
+    html: html,
+    callbacks: callback
+  }
 }
 
 
@@ -614,11 +638,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initClientPokemons();
 });
 
-/**
- * Récupère la liste de pokemons du serveur.
- * @param {Etat} etatCourant
- * @returns un objet contenant les pokemons.
- */
 function getPokemon() {
   return fetch(serverUrl + "/pokemon", { headers: { "Api-Key": apiKey } })
     .then((response) => {
@@ -634,11 +653,6 @@ function getPokemon() {
     .catch((erreur) => ({ err: erreur }));
 }
 
-/**
- * Récupère la liste de pokemons dans le deck de l'utilisateur du serveur.
- * @param {Etat} etatCourant
- * @returns un objet contenant les pokemons du deck.
- */
 function getDeck() {
   return fetch(serverUrl + "/deck/" + login, { headers: { "Api-Key": apiKey } })
     .then((response) => {
