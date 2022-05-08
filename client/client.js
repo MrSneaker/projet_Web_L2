@@ -195,35 +195,7 @@ function genereBoutonConnexion(etatCourant) {
       },
       "btn-dc-login-modal": {
         onclick: () => majEtatEtPage(etatCourant, { login: undefined })
-      }
-    },
-  };
-}
-
-
-function SearchFunction() {
-  // Declare variables
-  var input, filter, found, table, li, a, i, j;
-  input = document.getElementById("SearchInput");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("tab-all-pokemons");
-  li = table.getElementsByTagName("li");
-
-  for (i = 0; i < tr.length; i++) {
-    a = li[i].getElementsByTagName("a");
-    for (j = 0; j < li.length; j++) {
-      if ([j].innerHTML.toUpperCase().indexOf(filter) > -1) {
-        found = true;
-      }
-    }
-    if (found) {
-      li[i].style.display = "";
-      found = false;
-    } else {
-
-      if (li[i].id != 'tableHeader') { li[i].style.display = "none"; }
-    }
-  }
+      }}};
 }
 
 /**
@@ -339,8 +311,14 @@ function getTypeOrdreTri(etatCourant) {
   }
 }
 
+/**
+ * Récupèrer la liste des pokemons et l'ordre de tri et retourne 
+ * les callbacks pour l'ordre et l'html des pokemons.
+ * @param {Etat} etatCourant
+ * @returns un objet contenant le type et l'ordre de tri
+ */
 function Tripokemon(etatCourant) {
-  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordreb
+  const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordre
   const pkmn = genereListPokemon(etatCourant);
   const html = pkmn.html;
   etatCourant.ordre = true;
@@ -359,6 +337,11 @@ function Tripokemon(etatCourant) {
   }
 }
 
+/**
+ * Récupère la liste de pokemons et l'ordre de tri depuis l'etat courant.
+ * @param {Etat} etatCourant
+ * @returns la liste de pokemons triée selon le tri et l'ordre défini.
+ */
 function PokemonTriés(etatCourant) {
   const { tri, order } = getTypeOrdreTri(etatCourant); // On récupère le tri et l'ordre
   const pokemons = etatCourant.Pokemons
@@ -372,6 +355,11 @@ function PokemonTriés(etatCourant) {
   return OrderedListePoke
 }
 
+/**
+ * HTML de genereInfo partie 1.
+ * @param {Etat} etatCourant
+ * @returns la 1ere partie de l'html si un pokemon est selectionné, vide sinon.
+ */
 function genereHTMLinfo1(etatCourant)
 {
   const pkmn = etatCourant.pokemon;
@@ -390,6 +378,11 @@ function genereHTMLinfo1(etatCourant)
     </div>`;
 }
 
+/**
+ * HTML de genereInfo partie 2.
+ * @param {Etat} etatCourant
+ * @returns la 2eme partie de l'html si un pokemon est selectionné, vide sinon.
+ */
 function genereHTMLinfo2(etatCourant)
 {
   const pkmn = etatCourant.pokemon;
@@ -415,6 +408,11 @@ function genereHTMLinfo2(etatCourant)
       </div>`
 }
 
+/**
+ * HTML de genereInfo partie 3.
+ * @param {Etat} etatCourant
+ * @returns la 3eme partie de l'html si un pokemon est selectionné, vide sinon.
+ */
 function genereHTMLinfo3(etatCourant)
 {
   return html = `
@@ -431,6 +429,11 @@ function genereHTMLinfo3(etatCourant)
     </div>`;
 }
 
+/**
+ * HTML des détails d'un pokemon.
+ * @param {Etat} etatCourant
+ * @returns l'html des détails du pokemon si un pokemon est selectionné, vide sinon.
+ */
 function genereInfoPokemon(etatCourant) {
   const pkmn = etatCourant.pokemon;
   if (!pkmn) return { html: "", callbacks: {} };
@@ -451,36 +454,6 @@ function genereInfoPokemon(etatCourant) {
         </div>
                ${html3}`;
   return {html: html, callbacks: {}};
-}
-
-function genereDeck(etatCourant) {
-  const ligneTab = etatCourant.Deck.map((pokemon) => `<tr id="pokemon-${pokemon.PokedexNumber}">
-  <td><img src="${pokemon.Images.Detail}" alt="${pokemon.Name}"/></td>
-  <td>${pokemon.PokedexNumber}</td>
-  <td>${pokemon.Name}</td>
-  <td>${pokemon.Abilities.join("\n")}</td>
-  <td>${pokemon.Types.join("\n")}</td>
-  </tr>`).join("")
-
-  const html = `<table class="table is-fullwidth">
-  <thead>
-        <tr>
-            <th>Image</th>
-            <th>#<i class="fas fa-angle-up"></i></th>
-            <th>Name</th>
-            <th>Abilities</th>
-            <th>Types</th>
-        </tr>
-    </thead>
-    <tbody>
-        ${ligneTab}
-    </tbody>
-  </table>`
-
-  return {
-    html: html,
-    callbacks: {}
-  }
 }
 
 /**
@@ -553,7 +526,6 @@ function generePage(etatCourant) {
   const barredeNavigation = genereBarreNavigation(etatCourant);
   const modaleLogin = genereModaleLogin(etatCourant);
   const Pokedex = generePokedex(etatCourant);
-  //const deck = genereDeck(etatCourant);
   // remarquer l'usage de la notation ... ci-dessous qui permet de "fusionner"
   // les dictionnaires de callbacks qui viennent de la barre et de la modale.
   // Attention, les callbacks définis dans modaleLogin.callbacks vont écraser
@@ -645,7 +617,6 @@ async function initClientPokemons() {
     errLogin: undefined,
     nbPokemon : 10,
     Pokemons: (await getPokemon()).sort((a,b)=>a.PokedexNumber - b.PokedexNumber),
-    //Deck : await getDeck(),
     
   };
   majPage(etatInitial);
@@ -662,22 +633,6 @@ function getPokemon() {
     .then((response) => {
       if (response.status === 401) {
         return response.json().then((json) => {
-          console.log(json);
-          return { err: json.message };
-        });
-      } else {
-        return response.json();
-      }
-    })
-    .catch((erreur) => ({ err: erreur }));
-}
-
-function getDeck() {
-  return fetch(serverUrl + "/deck/" + login, { headers: { "Api-Key": apiKey } })
-    .then((response) => {
-      if (response.status === 401) {
-        return response.json().then((json) => {
-          ;
           console.log(json);
           return { err: json.message };
         });
