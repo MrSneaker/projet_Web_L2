@@ -359,7 +359,7 @@ function PokemonTriés(etatCourant) {
     else if (tri == "Name") return order ? a.Name.localeCompare(b.Name) : b.Name.localeCompare(a.Name);
     else if (tri == "Abilities") return order ? a.Abilities.join("\n").localeCompare(b.Abilities.join("\n")) : b.Abilities.join("\n").localeCompare(a.Abilities.join("\n"));
     else if (tri == "Types") return order ? a.Types.join("\n").localeCompare(b.Types.join("\n")) : b.Types.join("\n").localeCompare(a.Types.join("\n"));
-  }).filter(x => x.Name.toLowerCase().includes(etatCourant.search ? etatCourant.search.toLowerCase() : ""));
+  })
 
   return OrderedListePoke
 }
