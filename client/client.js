@@ -509,7 +509,7 @@ function generePokedex(etatCourant)
 {
   const pkmn = Tripokemon(etatCourant);
   const infoPkmn = genereInfoPokemon(etatCourant);
-  const nbPoke = etatCourant.nbPokemon;
+  const nbPoke = getNbpkmn(etatCourant);
   const html = genereHTMLPokedex(etatCourant);
   const callback =  {...pkmn.callbacks, ...infoPkmn.callbacks,    
     "-":{onclick: ()=> {if(nbPoke>10){majEtatEtPage(etatCourant, {nbPokemon: nbPoke-10})} console.log("nbpoke : ",nbPoke)}},
