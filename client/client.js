@@ -5,7 +5,16 @@ const apiKey = "ae7e4634-7754-4704-ad5d-86bdbb232c12"; //"69617e9b-19db-4bf7-a33
 const serverUrl = "https://lifap5.univ-lyon1.fr";
 const login = "p2002495";
 
-/* ******************************************************************
+/* *********************************************
+)
+)
+)
+)
+)
+)
+)
+)
+)*********************
  * Gestion de la boîte de dialogue (a.k.a. modal) d'affichage de
  * l'utilisateur.
  * ****************************************************************** */
@@ -628,6 +637,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initClientPokemons();
 });
 
+/**
+ * retourne une promesse de l'objet contenant les pokemons 
+ * et leurs statistiques.
+ * @returns une promesse d'un objet.
+ */
 function getPokemon() {
   return fetch(serverUrl + "/pokemon", { headers: { "Api-Key": apiKey } })
     .then((response) => {
